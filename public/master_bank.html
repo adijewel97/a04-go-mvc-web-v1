@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Bank</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">MyApp</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="user.html">User</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="master_bank.html">Master Bank</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Data Master Bank</h2>
+
+        <!-- Form Input KODE_ERP -->
+        <div class="mb-3">
+            <label for="kodeErp" class="form-label">Masukkan Kode ERP:</label>
+            <input type="text" class="form-control" id="kodeErp" placeholder="Kosongkan untuk melihat semua data">
+        </div>
+        <button class="btn btn-primary" onclick="fetchBanks()">Cari</button>
+
+        <div id="message" class="alert alert-warning mt-3 d-none"></div>
+
+        <table class="table table-bordered mt-4 d-none" id="bank-table-container">
+            <thead>
+                <tr>
+                    <th>Kode ERP</th>
+                    <th>Kode Bank</th>
+                    <th>Nama Bank</th>
+                </tr>
+            </thead>
+            <tbody id="bank-table"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function fetchBanks() {
+            let kodeErp = document.getElementById("kodeErp").value;
+            let url = "http://localhost:8080/banks"; // Default semua data
+            if (kodeErp) {
+                url += `?kode_erp=${kodeErp}`;
+            }
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let tableContainer = document.getElementById("bank-table-container");
+                    let message = document.getElementById("message");
+                    let table = document.getElementById("bank-table");
+
+                    // Reset tampilan
+                    table.innerHTML = "";
+                    message.classList.add("d-none");
+                    tableContainer.classList.remove("d-none");
+
+                    data.forEach(bank => {
+                        let row = `<tr>
+                            <td>${bank.kode_erp}</td>
+                            <td>${bank.kode_bank}</td>
+                            <td>${bank.nama_bank}</td>
+                        </tr>`;
+                        table.innerHTML += row;
+                    });
+                })
+                .catch(error => {
+                    document.getElementById("message").innerHTML = error.message;
+                    document.getElementById("message").classList.remove("d-none");
+                    document.getElementById("bank-table-container").classList.add("d-none");
+                });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
